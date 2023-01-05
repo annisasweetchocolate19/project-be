@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Candidates;
 use Illuminate\Http\Request;
 
 class CandidatesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -13,7 +18,9 @@ class CandidatesController extends Controller
      */
     public function index()
     {
-        //
+        //Menampilkan data
+        $candidates = Candidates::all();
+        return view('candidates.index', compact('candidates'));
     }
 
     /**
@@ -24,6 +31,7 @@ class CandidatesController extends Controller
     public function create()
     {
         //
+        return view('candidates.create');
     }
 
     /**
@@ -34,7 +42,25 @@ class CandidatesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //validasi
+         $validated = $request->validate([
+            'job_id' => 'required',
+            'name' => 'required',
+            'email' => 'required|unique:candidates|max:255',
+            'phone' => 'required|unique:candidates|max:255',
+            'year' => 'required',
+        ]);
+
+        $candidates = new Candidates();
+        $candidates->job_id = $request->job_id;
+        $candidates->name = $request->name;
+        $candidates->email = $request->email;
+        $candidates->phone = $request->phone;
+        $candidates->year = $request->year;
+        $candidates->save();
+        return redirect()->route('candidates.index')
+            ->with('success', 'Data berhasil dibuat!');
+
     }
 
     /**
@@ -45,7 +71,8 @@ class CandidatesController extends Controller
      */
     public function show($id)
     {
-        //
+        $candidates = Candidates::findOrFail($id);
+        return view('candidates.show', compact('candidates'));
     }
 
     /**
