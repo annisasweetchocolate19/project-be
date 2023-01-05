@@ -83,7 +83,8 @@ class CandidatesController extends Controller
      */
     public function edit($id)
     {
-        //
+        $candidates = Candidates::findOrFail($id);
+        return view('candidates.edit', compact('candidates'));
     }
 
     /**
@@ -95,7 +96,25 @@ class CandidatesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // Validasi
+        $validated = $request->validate([
+            'job_id' => 'required',
+            'name' => 'required',
+            'email' => 'required|unique:candidates|max:255',
+            'phone' => 'required|unique:candidates|max:255',
+            'year' => 'required',
+        ]);
+
+        $candidates = new Candidates();
+        $candidates->job_id = $request->job_id;
+        $candidates->name = $request->name;
+        $candidates->email = $request->email;
+        $candidates->phone = $request->phone;
+        $candidates->year = $request->year;
+        $candidates->save();
+        return redirect()->route('candidates.index')
+            ->with('success', 'Data berhasil diperbaharui!');
+
     }
 
     /**
@@ -106,6 +125,9 @@ class CandidatesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $candidates = Candidates::findOrFail($id);
+        $candidates->delete();
+        return redirect()->route('candidates.index')
+            ->with('success', 'Data berhasil dihapus!');
     }
 }
